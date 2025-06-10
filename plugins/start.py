@@ -25,7 +25,7 @@ async def start(client, message):
             InlineKeyboardButton("♻️ Renew Premium", callback_data="renew"),
             InlineKeyboardButton("💳 Get Premium", callback_data="buy")
         ],
-        [InlineKeyboardButton("💎 Contact Support", url="https://t.me/KingVJ01")]
+        [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
     ])
 
     await client.send_message(
@@ -91,4 +91,46 @@ async def stream_start(client, message):
         quote=True,
         disable_web_page_preview=True,
         reply_markup=rm
+    )
+
+
+# ⬇️ Add this below your other handlers — Do not change any existing code
+
+@Client.on_callback_query(filters.regex("plans"))
+async def show_plans_callback(client, callback_query):
+    await callback_query.message.edit_text(
+        text="""
+<b>💎 Premium Plans</b>
+
+📅 <b>1 Month:</b> ₹170 / $1.99  
+📅 <b>3 Months:</b> ₹450 / $5.49  
+📅 <b>6 Months:</b> ₹800 / $9.99  
+📅 <b>1 Year:</b> ₹1500 / $17.99
+
+✨ Features:
+– Unlimited link generation  
+– Stream, Embed, and Direct Links  
+– 24x7 Uptime  
+– No ads & High speed
+""",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
+        ]),
+        parse_mode=enums.ParseMode.HTML
+    )
+
+
+@Client.on_callback_query(filters.regex("back_to_home"))
+async def back_to_home_callback(client, callback_query):
+    await callback_query.message.edit_text(
+        text=script.START_TXT.format(callback_query.from_user.mention, temp.U_NAME, temp.B_NAME),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
+            [
+                InlineKeyboardButton("♻️ Renew Premium", callback_data="renew"),
+                InlineKeyboardButton("💳 Get Premium", callback_data="buy")
+            ],
+            [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
+        ]),
+        parse_mode=enums.ParseMode.HTML
     )
