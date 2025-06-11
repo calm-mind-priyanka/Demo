@@ -6,12 +6,14 @@
 
 import sys, glob, importlib.util, logging, logging.config, pytz, asyncio
 from pathlib import Path
-
-from pyrogram import idle
-from pyrogram.types import Message
 from datetime import date, datetime
 from aiohttp import web
 
+# ✅ Pyrogram Imports (fix was here)
+from pyrogram import Client, filters, idle
+from pyrogram.types import Message
+
+# ✅ Local Imports
 from TechVJ.bot import TechVJBot
 from TechVJ.bot.clients import initialize_clients
 from TechVJ.util.keepalive import ping_server
@@ -32,14 +34,14 @@ logging.getLogger("imdbpy").setLevel(logging.ERROR)
 logging.getLogger("aiohttp").setLevel(logging.ERROR)
 logging.getLogger("aiohttp.web").setLevel(logging.ERROR)
 
-# ✅ Restore JSON files
+# ✅ Restore premium & tracker JSON files from BACKUP_CHANNEL
 @TechVJBot.on_message(filters.chat(BACKUP_CHANNEL) & filters.document)
 async def restore_json_on_start(client, message: Message):
     if message.document.file_name in ["premium_users.json", "usage_tracker.json"]:
         await client.download_media(message)
         print(f"[RESTORE] {message.document.file_name} restored.")
 
-# ✅ Load plugins and start bot
+# ✅ Start function
 async def start():
     print("\nInitializing your bot...")
 
@@ -48,7 +50,7 @@ async def start():
 
     await initialize_clients()
 
-    # Load all plugin files dynamically
+    # Load all plugins dynamically from /plugins
     plugin_files = glob.glob("plugins/*.py")
     for plugin_path in plugin_files:
         plugin_name = Path(plugin_path).stem
@@ -58,32 +60,32 @@ async def start():
         sys.modules[f"plugins.{plugin_name}"] = module
         print(f"✅ Imported plugin => {plugin_name}")
 
-    # Set bot info globally
+    # Set bot info in temp
     temp.BOT = TechVJBot
     temp.ME = bot_info.id
     temp.U_NAME = bot_info.username
     temp.B_NAME = bot_info.first_name
 
-    # Send restart log message
+    # Send restart message
     tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     now = datetime.now(tz)
-    time = now.strftime("%H:%M:%S %p")
-    await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
+    time_str = now.strftime("%H:%M:%S %p")
+    await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time_str))
 
-    # Keepalive pinging
+    # If running on Heroku, keep pinging
     if ON_HEROKU:
         asyncio.create_task(ping_server())
 
-    # Start web server
+    # Start aiohttp web server
     app = web.AppRunner(await web_server())
     await app.setup()
     await web.TCPSite(app, "0.0.0.0", PORT).start()
 
-    # Idle until interrupted
+    # Wait forever
     await idle()
 
-# ✅ Entry point
+# ✅ Main
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     try:
