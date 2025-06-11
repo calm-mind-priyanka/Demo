@@ -94,13 +94,11 @@ async def stream_start(client, message):
     )
 
 
-# ⬇️ Add this below your other handlers — Do not change any existing code
-
 @Client.on_callback_query(filters.regex("plans"))
 async def show_plans_callback(client, callback_query):
-    await callback_query.message.edit_photo(
-        photo="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg",  # your QR image
-        caption="""
+    await callback_query.message.edit_text(
+        text="""
+<a href="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg">‎</a>
 <b>***ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs ♻️***</b>
 <b>• 𝟷 ᴡᴇᴇᴋ - ₹𝟹𝟶 • 𝟷 ᴍᴏɴᴛʜ - ₹𝟻𝟶 • 𝟹 ᴍᴏɴᴛʜs - ₹𝟷𝟶𝟶 • 𝟼 ᴍᴏɴᴛʜs - ₹𝟸𝟶𝟶</b>
 <b>─────•─────────•─────•</b>
@@ -112,7 +110,7 @@ async def show_plans_callback(client, callback_query):
 ○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs
 ○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇꜱ, ꜱᴇʀɪᴇꜱ & ᴀɴɪᴍᴇ
 ○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ
-○ ʀᴇǫᴜᴇsᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
+○ ʀᴇǫᴜᴇꜱᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
 <b>─────•─────────•─────•</b>
 <b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
 <b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
@@ -123,7 +121,8 @@ async def show_plans_callback(client, callback_query):
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
         ]),
-        parse_mode=enums.ParseMode.HTML
+        parse_mode=enums.ParseMode.HTML,
+        disable_web_page_preview=False
     )
 
 
