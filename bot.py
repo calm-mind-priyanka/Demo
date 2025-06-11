@@ -19,7 +19,8 @@ logging.basicConfig(
 logging.getLogger("aiohttp").setLevel(logging.ERROR)
 logging.getLogger("aiohttp.web").setLevel(logging.ERROR)
 
-from pyrogram import Client, idle 
+from pyrogram import Client, filters, idle
+from pyrogram.types import Message
 from database.users_chats_db import db
 from info import *
 from utils import temp
@@ -33,11 +34,20 @@ from TechVJ.bot import TechVJBot
 from TechVJ.util.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
+# ✅ Add your backup channel ID here
+BACKUP_CHANNEL = -1001234567890  # Replace this with your actual backup channel ID
+
+# ✅ This restores premium_users.json and usage_tracker.json after redeploy
+@TechVJBot.on_message(filters.chat(BACKUP_CHANNEL) & filters.document)
+async def restore_json_on_start(client, message: Message):
+    if message.document.file_name in ["premium_users.json", "usage_tracker.json"]:
+        await client.download_media(message)
+        print(f"[RESTORE] {message.document.file_name} restored.")
+
 ppath = "plugins/*.py"
 files = glob.glob(ppath)
 TechVJBot.start()
 loop = asyncio.get_event_loop()
-
 
 async def start():
     print('\n')
@@ -73,10 +83,8 @@ async def start():
     await web.TCPSite(app, bind_address, PORT).start()
     await idle()
 
-
 if __name__ == '__main__':
     try:
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
-
