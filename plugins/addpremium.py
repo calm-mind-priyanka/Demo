@@ -3,7 +3,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 OWNER_ID = 6046055058  # your Telegram ID
-BACKUP_CHANNEL = -1001234567890  # your private channel ID
+BACKUP_CHANNEL = -1002763091823  # your private channel ID
 PREMIUM_FILE = "premium_users.json"
 
 def save_premium(data):
