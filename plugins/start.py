@@ -2,7 +2,7 @@ import random
 import humanize
 from Script import script
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto
 from info import URL, LOG_CHANNEL, SHORTLINK
 from urllib.parse import quote_plus
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
@@ -19,7 +19,7 @@ async def start(client, message):
             LOG_CHANNEL,
             script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention)
         )
-    
+
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
@@ -96,11 +96,10 @@ async def stream_start(client, message):
 
 @Client.on_callback_query(filters.regex("plans"))
 async def show_plans_callback(client, callback_query):
-    await callback_query.message.delete()
-    await client.send_photo(
-        chat_id=callback_query.from_user.id,
-        photo="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg",
-        caption="""
+    await callback_query.message.edit_media(
+        media=InputMediaPhoto(
+            media="https://graph.org/file/5635f6bd5f76da19ccc70.jpg",  # Replace if needed
+            caption="""
 <b>***ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs ♻️***</b>
 <b>• 𝟷 ᴡᴇᴇᴋ - ₹𝟹𝟶 • 𝟷 ᴍᴏɴᴛʜ - ₹𝟻𝟶 • 𝟹 ᴍᴏɴᴛʜs - ₹𝟷𝟶𝟶 • 𝟼 ᴍᴏɴᴛʜs - ₹𝟸𝟶𝟶</b>
 <b>─────•─────────•─────•</b>
@@ -112,18 +111,19 @@ async def show_plans_callback(client, callback_query):
 ○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs
 ○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇꜱ, ꜱᴇʀɪᴇꜱ & ᴀɴɪᴍᴇ
 ○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ
-○ ʀᴇǫᴜᴇsᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
+○ ʀᴇǫᴜᴇꜱᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
 <b>─────•─────────•─────•</b>
 <b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
 <b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
 
 <b>💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ‼️ 
-ᴀꜰᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴍᴇ sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ ᴠᴇʀsɪᴏɴ.</b>
+ᴀꜰᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴍᴇ ꜱᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ ᴠᴇʀꜱɪᴏɴ.</b>
 """,
+            parse_mode="HTML"
+        ),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
-        ]),
-        parse_mode=enums.ParseMode.HTML
+        ])
     )
 
 
