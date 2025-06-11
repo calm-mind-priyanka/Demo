@@ -4,87 +4,89 @@
 
 # Clone Code Credit : YT - @Tech_VJ / TG - @VJ_Bots / GitHub - @VJBots
 
-import sys, glob, importlib, logging, logging.config, pytz, asyncio
+import sys, glob, importlib.util, logging, logging.config, pytz, asyncio
 from pathlib import Path
 
-# Get logging configurations
+from pyrogram import idle
+from pyrogram.types import Message
+from datetime import date, datetime
+from aiohttp import web
+
+from TechVJ.bot import TechVJBot
+from TechVJ.bot.clients import initialize_clients
+from TechVJ.util.keepalive import ping_server
+from plugins import web_server
+from database.users_chats_db import db
+from info import *
+from utils import temp
+from Script import script
+
+# ✅ Backup channel to restore files
+BACKUP_CHANNEL = -1002763091823  # Change this to your backup channel
+
+# ✅ Logging setup
 logging.config.fileConfig('logging.conf')
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
 logging.getLogger("imdbpy").setLevel(logging.ERROR)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logging.getLogger("aiohttp").setLevel(logging.ERROR)
 logging.getLogger("aiohttp.web").setLevel(logging.ERROR)
 
-from pyrogram import Client, filters, idle
-from pyrogram.types import Message
-from database.users_chats_db import db
-from info import *
-from utils import temp
-from typing import Union, Optional, AsyncGenerator
-from Script import script 
-from datetime import date, datetime 
-from aiohttp import web
-from plugins import web_server
-
-from TechVJ.bot import TechVJBot
-from TechVJ.util.keepalive import ping_server
-from TechVJ.bot.clients import initialize_clients
-
-# ✅ Add your backup channel ID here
-BACKUP_CHANNEL = -1002763091823  # Replace this with your actual backup channel ID
-
-# ✅ This restores premium_users.json and usage_tracker.json after redeploy
+# ✅ Restore JSON files
 @TechVJBot.on_message(filters.chat(BACKUP_CHANNEL) & filters.document)
 async def restore_json_on_start(client, message: Message):
     if message.document.file_name in ["premium_users.json", "usage_tracker.json"]:
         await client.download_media(message)
         print(f"[RESTORE] {message.document.file_name} restored.")
 
-ppath = "plugins/*.py"
-files = glob.glob(ppath)
-TechVJBot.start()
-loop = asyncio.get_event_loop()
-
+# ✅ Load plugins and start bot
 async def start():
-    print('\n')
-    print('Initalizing Your Bot')
+    print("\nInitializing your bot...")
+
+    await TechVJBot.start()
     bot_info = await TechVJBot.get_me()
+
     await initialize_clients()
-    for name in files:
-        with open(name) as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"plugins/{plugin_name}.py")
-            import_path = "plugins.{}".format(plugin_name)
-            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
-            load = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(load)
-            sys.modules["plugins." + plugin_name] = load
-            print("Tech VJ Imported => " + plugin_name)
-    if ON_HEROKU:
-        asyncio.create_task(ping_server())
-    me = await TechVJBot.get_me()
+
+    # Load all plugin files dynamically
+    plugin_files = glob.glob("plugins/*.py")
+    for plugin_path in plugin_files:
+        plugin_name = Path(plugin_path).stem
+        spec = importlib.util.spec_from_file_location(f"plugins.{plugin_name}", plugin_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        sys.modules[f"plugins.{plugin_name}"] = module
+        print(f"✅ Imported plugin => {plugin_name}")
+
+    # Set bot info globally
     temp.BOT = TechVJBot
-    temp.ME = me.id
-    temp.U_NAME = me.username
-    temp.B_NAME = me.first_name
+    temp.ME = bot_info.id
+    temp.U_NAME = bot_info.username
+    temp.B_NAME = bot_info.first_name
+
+    # Send restart log message
     tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     now = datetime.now(tz)
     time = now.strftime("%H:%M:%S %p")
     await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
+
+    # Keepalive pinging
+    if ON_HEROKU:
+        asyncio.create_task(ping_server())
+
+    # Start web server
     app = web.AppRunner(await web_server())
     await app.setup()
-    bind_address = "0.0.0.0"
-    await web.TCPSite(app, bind_address, PORT).start()
+    await web.TCPSite(app, "0.0.0.0", PORT).start()
+
+    # Idle until interrupted
     await idle()
 
-if __name__ == '__main__':
+# ✅ Entry point
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(start())
     except KeyboardInterrupt:
-        logging.info('Service Stopped Bye 👋')
+        logging.info("Service stopped. Bye 👋")
