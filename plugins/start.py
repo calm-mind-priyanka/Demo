@@ -3,7 +3,7 @@ import humanize
 from datetime import datetime
 from Script import script
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, CallbackQuery
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from info import URL, LOG_CHANNEL, SHORTLINK
 from urllib.parse import quote_plus
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
@@ -20,7 +20,6 @@ async def start(client, message):
             script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention)
         )
     
-    # ✅ NEW CODE: Check premium status
     is_premium = await db.is_premium(message.from_user.id)
     if not is_premium:
         await message.reply_text("⚠️ You're using a free version.\n💳 Use /plan to upgrade.")
@@ -40,14 +39,13 @@ async def start(client, message):
         reply_markup=rm,
         parse_mode=enums.ParseMode.HTML
     )
-    return
+
 
 @Client.on_message(filters.private & (filters.document | filters.video))
 async def stream_start(client, message):
     user_id = message.from_user.id
     username = message.from_user.mention
 
-    # ✅ NEW CODE: Check user plan & limit free users
     is_premium = await db.is_premium(user_id)
     today = datetime.now().strftime("%Y-%m-%d")
     used = await db.get_daily_count(user_id, today)
@@ -110,4 +108,52 @@ async def stream_start(client, message):
         reply_markup=rm
     )
 
-# (Your show_plans_callback and back_to_home_callback stay same)
+
+# ✅ Added missing callbacks
+
+@Client.on_callback_query(filters.regex("plans"))
+async def show_plans_callback(client, callback_query):
+    await callback_query.message.edit_text(
+        text="""
+<a href="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg">‎</a>
+<b>ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs ♻️</b>
+<b>• 𝟷 ᴡᴇᴇᴋ - ₹𝟹𝟶 • 𝟷 ᴍᴏɴᴛʜ - ₹𝟻𝟶 • 𝟹 ᴍᴏɴᴛʜs - ₹𝟷𝟶𝟶 • 𝟼 ᴍᴏɴᴛʜs - ₹𝟸𝟶𝟶</b>
+<b>─────•─────────•─────•</b>
+<b>ᴘʀᴇᴍɪᴜᴍ ꜰᴇᴀᴛᴜʀᴇs 🎁</b>
+<b>○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴠᴇʀɪꜰʏ
+○ ᴅɪʀᴇᴄᴛ ꜰɪʟᴇs
+○ ᴀᴅ-ꜰʀᴇᴇ ᴇxᴘᴇʀɪᴇɴᴄᴇ
+○ ʜɪɢʜ-sᴘᴇᴇᴅ ᴅᴏᴡɴʟᴏᴀᴅ ʟɪɴᴋ
+○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs
+○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇꜱ, ꜱᴇʀɪᴇꜱ & ᴀɴɪᴍᴇ
+○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ
+○ ʀᴇǫᴜᴇꜱᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
+<b>─────•─────────•─────•</b>
+<b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
+<b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
+
+<b>💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ‼️
+ᴀꜰᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴍᴇ sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ ᴠᴇʀsɪᴏɴ.</b>
+        """,
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
+        ]),
+        parse_mode=enums.ParseMode.HTML,
+        disable_web_page_preview=False
+    )
+
+
+@Client.on_callback_query(filters.regex("back_to_home"))
+async def back_to_home_callback(client, callback_query):
+    await callback_query.message.edit_text(
+        text=script.START_TXT.format(callback_query.from_user.mention, temp.U_NAME, temp.B_NAME),
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
+            [
+                InlineKeyboardButton("♻️ Renew Premium", callback_data="renew"),
+                InlineKeyboardButton("💳 Get Premium", callback_data="buy")
+            ],
+            [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
+        ]),
+        parse_mode=enums.ParseMode.HTML
+    )
