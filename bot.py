@@ -35,7 +35,7 @@ from TechVJ.util.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
 # ✅ Add your backup channel ID here
-BACKUP_CHANNEL = -1001234567890  # Replace this with your actual backup channel ID
+BACKUP_CHANNEL = -1002763091823  # Replace this with your actual backup channel ID
 
 # ✅ This restores premium_users.json and usage_tracker.json after redeploy
 @TechVJBot.on_message(filters.chat(BACKUP_CHANNEL) & filters.document)
