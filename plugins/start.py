@@ -2,13 +2,14 @@ import random
 import humanize
 from Script import script
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, CallbackQuery
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from info import URL, LOG_CHANNEL, SHORTLINK
 from urllib.parse import quote_plus
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
 from database.users_chats_db import db
 from utils import temp, get_shortlink
+
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
@@ -34,14 +35,13 @@ async def start(client, message):
         reply_markup=rm,
         parse_mode=enums.ParseMode.HTML
     )
-    return
 
 
 @Client.on_message(filters.private & (filters.document | filters.video))
 async def stream_start(client, message):
     file = getattr(message, message.media.value)
     filename = file.file_name
-    filesize = humanize.naturalsize(file.file_size) 
+    filesize = humanize.naturalsize(file.file_size)
     fileid = file.file_id
     user_id = message.from_user.id
     username = message.from_user.mention
@@ -96,9 +96,11 @@ async def stream_start(client, message):
 
 @Client.on_callback_query(filters.regex("plans"))
 async def show_plans_callback(client, callback_query):
-    await callback_query.message.edit_text(
-        text="""
-<a href="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg">‎</a>
+    await callback_query.message.delete()
+    await client.send_photo(
+        chat_id=callback_query.from_user.id,
+        photo="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg",
+        caption="""
 <b>***ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs ♻️***</b>
 <b>• 𝟷 ᴡᴇᴇᴋ - ₹𝟹𝟶 • 𝟷 ᴍᴏɴᴛʜ - ₹𝟻𝟶 • 𝟹 ᴍᴏɴᴛʜs - ₹𝟷𝟶𝟶 • 𝟼 ᴍᴏɴᴛʜs - ₹𝟸𝟶𝟶</b>
 <b>─────•─────────•─────•</b>
@@ -110,7 +112,7 @@ async def show_plans_callback(client, callback_query):
 ○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs
 ○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇꜱ, ꜱᴇʀɪᴇꜱ & ᴀɴɪᴍᴇ
 ○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ
-○ ʀᴇǫᴜᴇꜱᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
+○ ʀᴇǫᴜᴇsᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
 <b>─────•─────────•─────•</b>
 <b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
 <b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
@@ -121,8 +123,7 @@ async def show_plans_callback(client, callback_query):
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
         ]),
-        parse_mode=enums.ParseMode.HTML,
-        disable_web_page_preview=False
+        parse_mode=enums.ParseMode.HTML
     )
 
 
