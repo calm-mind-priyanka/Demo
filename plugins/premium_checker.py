@@ -3,7 +3,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 PREMIUM_FILE = "premium_users.json"
-BACKUP_CHANNEL = -1001234567890
+BACKUP_CHANNEL = -1002763091823
 
 def save_premium(data):
     with open(PREMIUM_FILE, "w") as f:
