@@ -46,3 +46,6 @@ try:
         PREMIUM_USERS = json.load(pf)
 except Exception:
     PREMIUM_USERS = {}
+
+# ✅ Fixed: Premium validity duration (in days)
+PREMIUM_DAYS = 30  # You can change this number based on your plan
