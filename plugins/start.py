@@ -9,6 +9,7 @@ from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
 from database.users_chats_db import db
 from utils import temp, get_shortlink
+from premium_control import is_premium, is_limited_today, mark_usage  # ✅ added
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
@@ -18,7 +19,7 @@ async def start(client, message):
             LOG_CHANNEL,
             script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention)
         )
-    
+
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
@@ -41,10 +42,17 @@ async def start(client, message):
 async def stream_start(client, message):
     file = getattr(message, message.media.value)
     filename = file.file_name
-    filesize = humanize.naturalsize(file.file_size) 
+    filesize = humanize.naturalsize(file.file_size)
     fileid = file.file_id
     user_id = message.from_user.id
     username = message.from_user.mention
+
+    # ✅ Premium Check Logic
+    if not await is_premium(user_id):
+        if await is_limited_today(user_id):
+            await message.reply_text("⚠️ You can only generate 1 link per day.\n💎 Buy Premium for unlimited access.")
+            return
+        await mark_usage(user_id)
 
     log_msg = await client.send_cached_media(
         chat_id=LOG_CHANNEL,
