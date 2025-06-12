@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from TechVJ.util.premium_control import remove_premium
+from premium_control import remove_premium
 from info import ADMINS
 
 @Client.on_message(filters.command("removepremium") & filters.user(ADMINS))
