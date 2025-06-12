@@ -1,11 +1,17 @@
-from info import PREMIUM_USERS
-from database.usage_db import UsageDB
+from info import PREMIUM_USERS, PREMIUM_DAYS
+import datetime
 
-async def can_generate_link(user_id: int) -> bool:
-    if user_id in PREMIUM_USERS:
-        return True
-    return UsageDB.can_generate(user_id)
-
-def increment_usage(user_id: int):
+def is_premium(user_id):
     if user_id not in PREMIUM_USERS:
-        UsageDB.increment_usage(user_id)
+        return False
+    expiry_date = PREMIUM_USERS[user_id]
+    return datetime.datetime.now() < expiry_date
+
+def add_premium(user_id, days):
+    expiry = datetime.datetime.now() + datetime.timedelta(days=days)
+    PREMIUM_USERS[user_id] = expiry
+    PREMIUM_DAYS[user_id] = days
+
+def remove_premium(user_id):
+    PREMIUM_USERS.pop(user_id, None)
+    PREMIUM_DAYS.pop(user_id, None)
