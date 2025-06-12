@@ -44,12 +44,12 @@ async def stream_start(client, message):
     username = message.from_user.mention
 
     # ✅ Check premium or 1 free link allowed
-    if not can_generate_link(user_id):
-        await message.reply_text(
-            "⚠️ You’ve already used your free link today.\n\n💳 To get unlimited access, consider buying premium from /plan.",
-            quote=True
-        )
-        return
+if not await can_generate_link(user_id):
+    await message.reply_text(
+        "⚠️ You’ve already used your free link today.\n\n💳 To get unlimited access, consider buying premium from /plan.",
+        quote=True
+    )
+    return
 
     file = getattr(message, message.media.value)
     filename = file.file_name
