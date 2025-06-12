@@ -11,7 +11,7 @@ class UsageDB:
         if user_data.get("date") != today:
             cls.usage_data[user_id] = {"date": today, "count": 0}
 
-        return user_data.get("count", 0) < 1  # Limit to 1 link/day
+        return cls.usage_data[user_id]["count"] < 1  # 1 use per day
 
     @classmethod
     def increment_usage(cls, user_id):
