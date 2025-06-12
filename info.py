@@ -1,4 +1,5 @@
 import re
+import json
 from os import environ
 
 id_pattern = re.compile(r'^.\d+$')
@@ -16,10 +17,7 @@ PORT = environ.get("PORT", "8080")
 MULTI_CLIENT = False
 SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
 PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
-if 'DYNO' in environ:
-    ON_HEROKU = True
-else:
-    ON_HEROKU = False
+ON_HEROKU = 'DYNO' in environ
 URL = environ.get("URL", "")
 
 # Admins, Channels & Users
@@ -31,6 +29,20 @@ DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://Rpsing:Rpsing2003@rpsi
 DATABASE_NAME = environ.get('DATABASE_NAME', "techvjautobot")
 
 # Shortlink Info
-SHORTLINK = bool(environ.get('SHORTLINK', False)) # Set True Or False
+SHORTLINK = bool(environ.get('SHORTLINK', False))  # Set True Or False
 SHORTLINK_URL = environ.get('SHORTLINK_URL', 'api.shareus.io')
 SHORTLINK_API = environ.get('SHORTLINK_API', 'hRPS5vvZc0OGOEUQJMJzPiojoVK2')
+
+# FSub Channels (Multiple)
+try:
+    with open("fsub.json", "r") as fs:
+        FSUB_CHANNELS = json.load(fs)
+except Exception:
+    FSUB_CHANNELS = []
+
+# Premium Users with Expiry
+try:
+    with open("premium.json", "r") as pf:
+        PREMIUM_USERS = json.load(pf)
+except Exception:
+    PREMIUM_USERS = {}
