@@ -7,6 +7,7 @@ from info import URL, LOG_CHANNEL, SHORTLINK
 from urllib.parse import quote_plus
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
+from TechVJ.util.premium_control import can_generate_link  # ✅ IMPORT THIS
 from database.users_chats_db import db
 from utils import temp, get_shortlink
 
@@ -18,7 +19,7 @@ async def start(client, message):
             LOG_CHANNEL,
             script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention)
         )
-    
+
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
@@ -39,12 +40,21 @@ async def start(client, message):
 
 @Client.on_message(filters.private & (filters.document | filters.video))
 async def stream_start(client, message):
-    file = getattr(message, message.media.value)
-    filename = file.file_name
-    filesize = humanize.naturalsize(file.file_size) 
-    fileid = file.file_id
     user_id = message.from_user.id
     username = message.from_user.mention
+
+    # ✅ Check premium or 1 free link allowed
+    if not can_generate_link(user_id):
+        await message.reply_text(
+            "⚠️ You’ve already used your free link today.\n\n💳 To get unlimited access, consider buying premium from /plan.",
+            quote=True
+        )
+        return
+
+    file = getattr(message, message.media.value)
+    filename = file.file_name
+    filesize = humanize.naturalsize(file.file_size)
+    fileid = file.file_id
 
     log_msg = await client.send_cached_media(
         chat_id=LOG_CHANNEL,
@@ -53,7 +63,7 @@ async def stream_start(client, message):
 
     fileName = {quote_plus(get_name(log_msg))}
 
-    if SHORTLINK == False:
+    if not SHORTLINK:
         stream = f"{URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         download = f"{URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
     else:
