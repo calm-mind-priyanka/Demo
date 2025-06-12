@@ -24,7 +24,7 @@ async def add_premium(bot: Client, message: Message):
 
     parts = message.text.strip().split()
     if len(parts) != 3 or not parts[1].isdigit() or not parts[2].isdigit():
-        return await message.reply("❌ Invalid format.\n✅ Use: `/addpremium user_id days`")
+        return await message.reply("❌ Invalid format.\n✅ Use: /addpremium user_id days")
 
     user_id = parts[1]
     days = int(parts[2])
@@ -39,4 +39,4 @@ async def add_premium(bot: Client, message: Message):
         document=PREMIUM_FILE,
         caption="📦 Premium users backup"
     )
-    await message.reply(f"✅ User `{user_id}` added as premium for {days} day(s).")
+    await message.reply(f"✅ User {user_id} added as premium for {days} day(s).")
