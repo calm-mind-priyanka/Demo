@@ -1,3 +1,5 @@
+# database/usage_db.py
+
 import datetime
 
 class UsageDB:
@@ -11,7 +13,7 @@ class UsageDB:
         if user_data.get("date") != today:
             cls.usage_data[user_id] = {"date": today, "count": 0}
 
-        return cls.usage_data[user_id]["count"] < 1  # 1 use per day
+        return cls.usage_data[user_id]["count"] < 1  # Allow only once per day
 
     @classmethod
     def increment_usage(cls, user_id):
