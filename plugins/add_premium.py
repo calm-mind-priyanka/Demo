@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from TechVJ.util.premium_control import add_premium
+from plugins.premium_control import add_premium  # ✅ Fixed import
 from info import ADMINS
 
 @Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
