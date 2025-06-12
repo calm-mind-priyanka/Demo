@@ -61,4 +61,3 @@ async def check_subscription(bot: Client, message: Message):
             "🚫 To use this bot, please join all required channels.",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
-        return
