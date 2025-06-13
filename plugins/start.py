@@ -51,7 +51,8 @@ async def stream_start(client, message):
     if not await is_premium(user_id):
         if await is_limited_today(user_id):
             await message.reply_text(
-                "⚠️ You can only generate 1 link per day as a free user.\n\n💎 Upgrade to Premium for unlimited access!"
+                "❌ Free users can generate only 1 link per day.\n\n💳 Click /start and tap the **Show Plans** button to upgrade.",
+                parse_mode=enums.ParseMode.MARKDOWN
             )
             return
         else:
