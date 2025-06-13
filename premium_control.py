@@ -1,19 +1,25 @@
 import datetime
 import json
 from info import PREMIUM_USERS, PREMIUM_DAYS
+import os
 
 PREMIUM_JSON_FILE = "premium.json"
+USAGE_JSON_FILE = "usage.json"
 
 # Track daily usage per user
-DAILY_USAGE = {}
+if os.path.exists(USAGE_JSON_FILE):
+    with open(USAGE_JSON_FILE) as f:
+        DAILY_USAGE = json.load(f)
+else:
+    DAILY_USAGE = {}
 
-# Helper: Save PREMIUM_USERS dict back to premium.json
+# Save PREMIUM_USERS dict back to premium.json
 def save_premium_users():
     to_save = {str(user): expiry.isoformat() for user, expiry in PREMIUM_USERS.items()}
     with open(PREMIUM_JSON_FILE, "w") as f:
         json.dump(to_save, f, indent=4)
 
-# Convert PREMIUM_USERS expiry strings to datetime objects on load
+# Convert PREMIUM_USERS expiry strings to datetime objects
 def parse_premium_dates():
     for user, expiry_str in list(PREMIUM_USERS.items()):
         if isinstance(expiry_str, str):
@@ -22,7 +28,7 @@ def parse_premium_dates():
             except Exception:
                 PREMIUM_USERS.pop(user)
 
-# Call once on import
+# Call once
 parse_premium_dates()
 
 async def is_premium(user_id):
@@ -36,21 +42,21 @@ def add_premium(user_id, days):
     PREMIUM_USERS[user_id] = expiry
     PREMIUM_DAYS[user_id] = days
     save_premium_users()
-    parse_premium_dates()  # ✅ This line is the FIX
+    parse_premium_dates()
 
 def remove_premium(user_id):
     PREMIUM_USERS.pop(user_id, None)
     PREMIUM_DAYS.pop(user_id, None)
     save_premium_users()
-    parse_premium_dates()  # ✅ Keep it consistent
+    parse_premium_dates()
 
 # ---- Daily limit for free users ----
 def is_limited_today(user_id):
-    today = datetime.date.today()
-    if user_id in DAILY_USAGE and DAILY_USAGE[user_id]['date'] == today:
-        return DAILY_USAGE[user_id]['used']
-    return False
+    today = datetime.date.today().isoformat()
+    return DAILY_USAGE.get(str(user_id)) == today
 
 def mark_usage(user_id):
-    today = datetime.date.today()
-    DAILY_USAGE[user_id] = {'date': today, 'used': True}
+    today = datetime.date.today().isoformat()
+    DAILY_USAGE[str(user_id)] = today
+    with open(USAGE_JSON_FILE, "w") as f:
+        json.dump(DAILY_USAGE, f, indent=4)
