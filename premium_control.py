@@ -33,9 +33,14 @@ parse_premium_dates()
 
 # Check if user is premium
 async def is_premium(user_id):
-    if user_id not in PREMIUM_USERS:
+    expiry_date = PREMIUM_USERS.get(user_id)
+    if not expiry_date:
         return False
-    expiry_date = PREMIUM_USERS[user_id]
+    if isinstance(expiry_date, str):
+        try:
+            expiry_date = datetime.datetime.fromisoformat(expiry_date)
+        except:
+            return False
     return datetime.datetime.now() < expiry_date
 
 # Add premium to a user
