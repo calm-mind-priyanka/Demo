@@ -2,13 +2,17 @@ import random
 import humanize
 from Script import script
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, CallbackQuery
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from info import URL, LOG_CHANNEL, SHORTLINK
 from urllib.parse import quote_plus
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
 from database.users_chats_db import db
 from utils import temp, get_shortlink
+
+# Force sub & premium check import
+from plugins.fsub import is_subscribed
+from plugins.premium import is_premium
 
 
 @Client.on_message(filters.command("start") & filters.incoming)
@@ -35,17 +39,39 @@ async def start(client, message):
         reply_markup=rm,
         parse_mode=enums.ParseMode.HTML
     )
-    return
 
 
 @Client.on_message(filters.private & (filters.document | filters.video))
 async def stream_start(client, message):
+    user_id = message.from_user.id
+    username = message.from_user.mention
+
+    # Force Sub Check
+    if not await is_subscribed(client, user_id):
+        await message.reply_text(
+            "❌ You must join the update channel to use this bot.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("📢 Join Channel", url="https://t.me/YOUR_CHANNEL_USERNAME")],
+                [InlineKeyboardButton("✅ I've Joined", callback_data="checksub")]
+            ])
+        )
+        return
+
+    # Premium Check
+    if not await is_premium(user_id):
+        await message.reply_text(
+            "🚫 You are not a Premium user.\n\n💳 To generate links, please upgrade to a premium plan.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💎 Buy Premium", callback_data="buy")],
+                [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
+            ])
+        )
+        return
+
     file = getattr(message, message.media.value)
     filename = file.file_name
     filesize = humanize.naturalsize(file.file_size)
     fileid = file.file_id
-    user_id = message.from_user.id
-    username = message.from_user.mention
 
     log_msg = await client.send_cached_media(
         chat_id=LOG_CHANNEL,
@@ -70,8 +96,8 @@ async def stream_start(client, message):
         disable_web_page_preview=True,
         reply_markup=InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("🚀 Fast Download 🚀", url=download),
-                InlineKeyboardButton("🖥️ Watch online 🖥️", url=stream)
+                InlineKeyboardButton("🚀 Fast Download", url=download),
+                InlineKeyboardButton("🖥️ Watch Online", url=stream)
             ],
             [InlineKeyboardButton("📺 Embed", url=embed)]
         ])
@@ -104,27 +130,7 @@ async def stream_start(client, message):
 @Client.on_callback_query(filters.regex("plans"))
 async def show_plans_callback(client, callback_query):
     await callback_query.message.edit_text(
-        text="""
-<a href="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg">‎</a>
-<b>***ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs ♻️***</b>
-<b>• 𝟷 ᴡᴇᴇᴋ - ₹𝟹𝟶 • 𝟷 ᴍᴏɴᴛʜ - ₹𝟻𝟶 • 𝟹 ᴍᴏɴᴛʜs - ₹𝟷𝟶𝟶 • 𝟼 ᴍᴏɴᴛʜs - ₹𝟸𝟶𝟶</b>
-<b>─────•─────────•─────•</b>
-<b>***ᴘʀᴇᴍɪᴜᴍ ꜰᴇᴀᴛᴜʀᴇs 🎁***</b>
-<b>○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴠᴇʀɪꜰʏ
-○ ᴅɪʀᴇᴄᴛ ꜰɪʟᴇs
-○ ᴀᴅ-ꜰʀᴇᴇ ᴇxᴘᴇʀɪᴇɴᴄᴇ
-○ ʜɪɢʜ-sᴘᴇᴇᴅ ᴅᴏᴡɴʟᴏᴀᴅ ʟɪɴᴋ
-○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs
-○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇꜱ, ꜱᴇʀɪᴇꜱ & ᴀɴɪᴍᴇ
-○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ
-○ ʀᴇǫᴜᴇꜱᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
-<b>─────•─────────•─────•</b>
-<b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
-<b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
-
-<b>💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ‼️ 
-ᴀꜰᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴍᴇ sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ ᴠᴇʀsɪᴏɴ.</b>
-""",
+        text="""<your plans message here>""",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
         ]),
