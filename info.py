@@ -44,8 +44,12 @@ except Exception:
 try:
     with open("premium.json", "r") as pf:
         PREMIUM_USERS = json.load(pf)
-except Exception:
-    PREMIUM_USERS = {}
+        if not isinstance(PREMIUM_USERS, list):
+            print("[WARN] premium.json content is not a list. Resetting to empty list.")
+            PREMIUM_USERS = []
+except Exception as e:
+    print(f"[ERROR] Failed to load premium.json: {e}")
+    PREMIUM_USERS = []
 
-# ✅ Fixed: Premium validity duration (in days)
-PREMIUM_DAYS = {}  # You can change this number based on your plan
+# Premium validity duration (default config)
+PREMIUM_DAYS = {}  # You can change this or extend it later
