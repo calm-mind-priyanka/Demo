@@ -5,6 +5,9 @@ import os
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 
+# 🔐 Add your admin ID(s) here
+ADMINS = [6046055058]
+
 FILENAME = "database/fsub.json"
 
 def load_fsub():
@@ -18,7 +21,7 @@ def save_fsub(channels):
         json.dump(channels, f)
 
 # Set FSub
-@Client.on_message(filters.command("setfsub") & filters.user(YOUR_ADMIN_IDS))
+@Client.on_message(filters.command("setfsub") & filters.user(ADMINS))
 async def set_fsub(client, message: Message):
     try:
         channel_ids = message.text.split(maxsplit=1)[1].split()
@@ -28,7 +31,7 @@ async def set_fsub(client, message: Message):
         await message.reply("❗ Usage: /setfsub channel_id1 channel_id2")
 
 # Delete FSub
-@Client.on_message(filters.command("delfsub") & filters.user(YOUR_ADMIN_IDS))
+@Client.on_message(filters.command("delfsub") & filters.user(ADMINS))
 async def del_fsub(client, message: Message):
     save_fsub([])
     await message.reply("❌ Force Subscribe requirement removed.")
@@ -54,4 +57,7 @@ async def send_join_buttons(client, message, not_joined):
         for c in not_joined
     ]
     btns.append([InlineKeyboardButton("✅ Joined", callback_data="refreshFsub")])
-    await message.reply("🚫 You must join the required channels to use this bot:", reply_markup=InlineKeyboardMarkup(btns))
+    await message.reply(
+        "🚫 You must join the required channels to use this bot:",
+        reply_markup=InlineKeyboardMarkup(btns)
+    )
