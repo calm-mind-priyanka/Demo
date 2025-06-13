@@ -9,7 +9,9 @@ from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
 from database.users_chats_db import db
 from utils import temp, get_shortlink
-from premium_control import is_premium, is_limited_today, mark_usage
+from premium_control import is_premium, is_limited_today, mark_usage, load_usage
+
+load_usage()  # ✅ Load usage tracking on bot start
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
