@@ -27,10 +27,10 @@ async def start(client, message):
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
-            InlineKeyboardButton("♻️ Renew Premium", url="https://t.me/KingVJ01"),
-            InlineKeyboardButton("💳 Get Premium", url="https://t.me/KingVJ01")
+            InlineKeyboardButton("♻️ Renew Premium", url="https://t.me/Sandymaiwait"),
+            InlineKeyboardButton("💳 Get Premium", url="https://t.me/Sandymaiwait")
         ],
-        [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
+        [InlineKeyboardButton("📞 Contact Support", url="https://t.me/Sandymaiwait")]
     ])
 
     await client.send_message(
@@ -57,8 +57,8 @@ async def stream_start(client, message):
         await message.reply_text(
             "🚫 You are not a Premium user.\n\n💳 To generate links, please upgrade to a premium plan.",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("💎 Buy Premium", url="https://t.me/KingVJ01")],
-                [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
+                [InlineKeyboardButton("💎 Buy Premium", url="https://t.me/Sandymaiwait")],
+                [InlineKeyboardButton("📞 Contact Support", url="https://t.me/Sandymaiwait")]
             ])
         )
         return
@@ -160,10 +160,10 @@ async def back_to_home_callback(client, callback_query):
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
             [
-                InlineKeyboardButton("♻️ Renew Premium", url="https://t.me/KingVJ01"),
-                InlineKeyboardButton("💳 Get Premium", url="https://t.me/KingVJ01")
+                InlineKeyboardButton("♻️ Renew Premium", url="https://t.me/Sandymaiwait"),
+                InlineKeyboardButton("💳 Get Premium", url="https://t.me/Sandymaiwait")
             ],
-            [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
+            [InlineKeyboardButton("📞 Contact Support", url="https://t.me/Sandymaiwait")]
         ]),
         parse_mode=enums.ParseMode.HTML
     )
