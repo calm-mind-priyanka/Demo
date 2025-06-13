@@ -11,7 +11,7 @@ from database.users_chats_db import db
 from utils import temp, get_shortlink
 
 # Force sub & premium check import
-from plugins.fsub import is_subscribed
+from plugins.fsub import check_fsub, send_join_buttons
 from plugins.premium import is_premium
 
 
@@ -47,14 +47,9 @@ async def stream_start(client, message):
     username = message.from_user.mention
 
     # Force Sub Check
-    if not await is_subscribed(client, user_id):
-        await message.reply_text(
-            "❌ You must join the update channel to use this bot.",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("📢 Join Channel", url="https://t.me/YOUR_CHANNEL_USERNAME")],
-                [InlineKeyboardButton("✅ I've Joined", callback_data="checksub")]
-            ])
-        )
+    not_joined = await check_fsub(user_id, client)
+    if not_joined:
+        await send_join_buttons(client, message, not_joined)
         return
 
     # Premium Check
@@ -153,3 +148,15 @@ async def back_to_home_callback(client, callback_query):
         ]),
         parse_mode=enums.ParseMode.HTML
     )
+
+
+@Client.on_callback_query(filters.regex("refreshFsub"))
+async def refresh_fsub_callback(client, callback_query):
+    user_id = callback_query.from_user.id
+    not_joined = await check_fsub(user_id, client)
+
+    if not_joined:
+        await callback_query.answer("❌ You still haven’t joined all required channels.", show_alert=True)
+    else:
+        await callback_query.message.delete()
+        await callback_query.message.reply("✅ Verified! You’ve joined all required channels. Now send your file.")
