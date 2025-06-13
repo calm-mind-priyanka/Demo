@@ -4,9 +4,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from database.users_chats_db import db
 from datetime import datetime, timedelta
-
-# 🔐 Add your admin ID(s) here
-ADMINS = [6046055058]
+from info import ADMINS  # ✅ Importing admin list from info.py
 
 # Add premium
 @Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
