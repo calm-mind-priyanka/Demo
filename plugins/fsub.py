@@ -1,9 +1,7 @@
-# plugins/fsub.py
-
 import json
 import os
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from info import ADMINS
 
 FILENAME = "database/fsub.json"
@@ -58,7 +56,8 @@ async def send_join_buttons(client, message, not_joined):
     for c in not_joined:
         try:
             chat = await client.get_chat(c)
-            btns.append([InlineKeyboardButton("🔗 Join", url=f"https://t.me/{chat.username}")])
+            if chat.username:
+                btns.append([InlineKeyboardButton("🔗 Join", url=f"https://t.me/{chat.username}")])
         except:
             pass
 
@@ -68,3 +67,14 @@ async def send_join_buttons(client, message, not_joined):
         "🚫 You must join the required channels to use this bot:",
         reply_markup=InlineKeyboardMarkup(btns)
     )
+
+# ✅ Refresh FSub Callback Handler
+@Client.on_callback_query(filters.regex("refreshFsub"))
+async def refresh_fsub(client, callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    not_joined = await check_fsub(user_id, client)
+
+    if not not_joined:
+        await callback_query.message.edit("✅ Thank you! You're verified.")
+    else:
+        await callback_query.answer("🚫 Still missing some channels!", show_alert=True)
