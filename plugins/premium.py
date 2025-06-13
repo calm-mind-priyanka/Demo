@@ -5,8 +5,11 @@ from pyrogram.types import Message
 from database.users_chats_db import db
 from datetime import datetime, timedelta
 
+# 🔐 Add your admin ID(s) here
+ADMINS = [6046055058]
+
 # Add premium
-@Client.on_message(filters.command("addpremium") & filters.user(YOUR_ADMIN_IDS))
+@Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
 async def add_premium(client, message: Message):
     try:
         user_id = int(message.command[1])
@@ -19,7 +22,7 @@ async def add_premium(client, message: Message):
     await message.reply(f"✅ Added user `{user_id}` to Premium for {days} days.")
 
 # Remove premium
-@Client.on_message(filters.command("removepremium") & filters.user(YOUR_ADMIN_IDS))
+@Client.on_message(filters.command("removepremium") & filters.user(ADMINS))
 async def remove_premium(client, message: Message):
     try:
         user_id = int(message.command[1])
