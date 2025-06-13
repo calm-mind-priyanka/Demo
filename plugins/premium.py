@@ -1,5 +1,3 @@
-# plugins/premium.py
-
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from database.users_chats_db import db
@@ -40,3 +38,8 @@ async def my_plan(client, message: Message):
         await message.reply(f"✅ You are a Premium user.\n🗓️ Expiry: `{expiry.strftime('%Y-%m-%d')}`")
     else:
         await message.reply("⚠️ You are not a Premium user.\nType /start to view Premium plans.")
+
+# ✅ This function is needed for imports
+async def is_premium(user_id: int) -> bool:
+    premium, _ = await db.is_premium(user_id)
+    return premium
