@@ -27,8 +27,8 @@ async def start(client, message):
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
-            InlineKeyboardButton("♻️ Renew Premium", callback_data="renew"),
-            InlineKeyboardButton("💳 Get Premium", callback_data="buy")
+            InlineKeyboardButton("♻️ Renew Premium", url="https://t.me/KingVJ01"),
+            InlineKeyboardButton("💳 Get Premium", url="https://t.me/KingVJ01")
         ],
         [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
     ])
@@ -57,7 +57,7 @@ async def stream_start(client, message):
         await message.reply_text(
             "🚫 You are not a Premium user.\n\n💳 To generate links, please upgrade to a premium plan.",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("💎 Buy Premium", callback_data="buy")],
+                [InlineKeyboardButton("💎 Buy Premium", url="https://t.me/KingVJ01")],
                 [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
             ])
         )
@@ -125,7 +125,26 @@ async def stream_start(client, message):
 @Client.on_callback_query(filters.regex("plans"))
 async def show_plans_callback(client, callback_query):
     await callback_query.message.edit_text(
-        text="""<your plans message here>""",
+        text="""<a href="https://graph.org/file/5635f6bd5f76da19ccc70-695af75bfa01aacbf2.jpg">‎</a>
+<b>***ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs ♻️***</b>
+<b>• 𝟷 ᴡᴇᴇᴋ - ₹𝟹𝟶
+• 𝟷 ᴍᴏɴᴛʜ - ₹𝟻𝟶
+• 𝟹 ᴍᴏɴᴛʜs - ₹𝟷𝟶𝟶
+• 𝟼 ᴍᴏɴᴛʜs - ₹𝟸𝟶𝟶</b>
+<b>─────•─────────•─────•</b>
+<b>***ᴘʀᴇᴍɪᴜᴍ ꜰᴇᴀᴛᴜʀᴇs 🎁***</b>
+<b>○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴠᴇʀɪꜰʏ
+○ ᴅɪʀᴇᴄᴛ ꜰɪʟᴇs
+○ ᴀᴅ-ꜰʀᴇᴇ ᴇxᴘᴇʀɪᴇɴᴄᴇ
+○ ʜɪɢʜ-sᴘᴇᴇᴅ ᴅᴏᴡɴʟᴏᴀᴅ ʟɪɴᴋ
+○ ᴍᴜʟᴛɪ-ᴘʟᴀʏᴇʀ sᴛʀᴇᴀᴍɪɴɢ ʟɪɴᴋs
+○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏᴠɪᴇꜱ, ꜱᴇʀɪᴇꜱ & ᴀɴɪᴍᴇ
+○ ꜰᴜʟʟ ᴀᴅᴍɪɴ sᴜᴘᴘᴏʀᴛ
+○ ʀᴇǫᴜᴇꜱᴛ ᴡɪʟʟ ʙᴇ ᴄᴏᴍᴘʟᴇᴛᴇᴅ ɪɴ 𝟷ʜ</b>
+<b>─────•─────────•─────•</b>
+<b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
+<b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
+<b>💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ‼️ ᴀꜰᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴍᴇ sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ ᴠᴇʀsɪᴏɴ.</b>""",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
         ]),
@@ -141,8 +160,8 @@ async def back_to_home_callback(client, callback_query):
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
             [
-                InlineKeyboardButton("♻️ Renew Premium", callback_data="renew"),
-                InlineKeyboardButton("💳 Get Premium", callback_data="buy")
+                InlineKeyboardButton("♻️ Renew Premium", url="https://t.me/KingVJ01"),
+                InlineKeyboardButton("💳 Get Premium", url="https://t.me/KingVJ01")
             ],
             [InlineKeyboardButton("📞 Contact Support", url="https://t.me/KingVJ01")]
         ]),
