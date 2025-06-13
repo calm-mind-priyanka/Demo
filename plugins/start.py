@@ -9,7 +9,7 @@ from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
 from TechVJ.util.human_readable import humanbytes
 from database.users_chats_db import db
 from utils import temp, get_shortlink
-from premium_control import is_premium, is_limited_today, mark_usage  # ✅ added
+from premium_control import is_premium, is_limited_today, mark_usage
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
@@ -48,16 +48,19 @@ async def stream_start(client, message):
     # ✅ Premium Check
     if not await is_premium(user_id):
         if await is_limited_today(user_id):
-            await message.reply_text("⚠️ You can only generate 1 link per day.\n💎 Buy Premium for unlimited access.")
+            await message.reply_text(
+                "⚠️ You can only generate 1 link per day as a free user.\n\n💎 Upgrade to Premium for unlimited access!"
+            )
             return
-        await mark_usage(user_id)
+        else:
+            mark_usage(user_id)
 
     log_msg = await client.send_cached_media(
         chat_id=LOG_CHANNEL,
         file_id=fileid,
     )
 
-    fileName = quote_plus(get_name(log_msg))  # ✅ Fixed here
+    fileName = quote_plus(get_name(log_msg))
 
     if SHORTLINK:
         stream = await get_shortlink(f"{URL}watch/{log_msg.id}/{fileName}?hash={get_hash(log_msg)}")
