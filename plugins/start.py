@@ -72,6 +72,9 @@ async def stream_start(client, message):
         stream = f"{URL}watch/{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
         download = f"{URL}{log_msg.id}/{fileName}?hash={get_hash(log_msg)}"
 
+    # 📦 Embed Code
+    embed_code = f'<iframe src="{stream}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>'
+
     await log_msg.reply_text(
         text=f"•• ʟɪɴᴋ ɢᴇɴᴇʀᴀᴛᴇᴅ ꜰᴏʀ ɪᴅ #{user_id} \n•• ᴜꜱᴇʀɴᴀᴍᴇ : {username} \n\n•• ᖴᎥᒪᗴ Nᗩᗰᗴ : {fileName}",
         quote=True,
@@ -83,17 +86,27 @@ async def stream_start(client, message):
     )
 
     rm = InlineKeyboardMarkup([
-        [InlineKeyboardButton("sᴛʀᴇᴀᴍ 🖥", url=stream),
-         InlineKeyboardButton("ᴅᴏᴡɴʟᴏᴀᴅ 📥", url=download)]
+        [InlineKeyboardButton("🖥️ Stream", url=stream),
+         InlineKeyboardButton("📥 Download", url=download)],
+        [InlineKeyboardButton("📎 Embed Code", callback_data=f"embed|{stream}")]
     ])
 
-    msg_text = """<i><u>𝗬𝗼𝘂𝗿 𝗟𝗶𝗻𝗸 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱 !</u></i>\n\n<b>📂 Fɪʟᴇ ɴᴀᴍᴇ :</b> <i>{}</i>\n\n<b>📦 Fɪʟᴇ ꜱɪᴢᴇ :</b> <i>{}</i>\n\n<b>📥 Dᴏᴡɴʟᴏᴀᴅ :</b> <i>{}</i>\n\n<b> 🖥ᴡᴀᴛᴄʜ :</b> <i>{}</i>\n\n<b>🚸 Nᴏᴛᴇ : ʟɪɴᴋ ᴡᴏɴ'ᴛ ᴇxᴘɪʀᴇ ᴛɪʟʟ ɪ ᴅᴇʟᴇᴛᴇ</b>"""
+    msg_text = """<i><u>𝗬𝗼𝘂𝗿 𝗟𝗶𝗻𝗸 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱 !</u></i>\n\n<b>📂 Fɪʟᴇ ɴᴀᴍᴇ :</b> <i>{}</i>\n\n<b>📦 Fɪʟᴇ ꜱɪᴢᴇ :</b> <i>{}</i>\n\n<b>📥 Dᴏᴡɴʟᴏᴀᴅ :</b> <i>{}</i>\n\n<b>🖥 ᴡᴀᴛᴄʜ :</b> <i>{}</i>\n\n<b>🚸 Nᴏᴛᴇ : ʟɪɴᴋ ᴡᴏɴ'ᴛ ᴇxᴘɪʀᴇ ᴛɪʟʟ ɪ ᴅᴇʟᴇᴛᴇ</b>"""
 
     await message.reply_text(
         text=msg_text.format(get_name(log_msg), humanbytes(get_media_file_size(message)), download, stream),
         quote=True,
         disable_web_page_preview=True,
         reply_markup=rm
+    )
+
+@Client.on_callback_query(filters.regex(r"embed\|(.+)"))
+async def show_embed_code(client, callback_query):
+    stream_url = callback_query.data.split("|")[1]
+    embed_code = f'<code>&lt;iframe src="{stream_url}" width="100%" height="480" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</code>'
+    await callback_query.message.reply_text(
+        f"<b>📎 Embed this video:</b>\n\n{embed_code}",
+        parse_mode=enums.ParseMode.HTML
     )
 
 @Client.on_callback_query(filters.regex("plans"))
