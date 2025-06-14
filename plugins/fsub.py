@@ -32,7 +32,7 @@ async def del_fsub(client, message: Message):
     save_fsub([])
     await message.reply("❌ Force Subscribe requirement removed.")
 
-# Check if the user is subscribed
+# ✅ Updated Check FSub Logic
 async def check_fsub(user_id, client):
     channels = load_fsub()
     not_joined = []
@@ -40,9 +40,11 @@ async def check_fsub(user_id, client):
     for ch in channels:
         try:
             member = await client.get_chat_member(ch, user_id)
-            if member.status in ("left", "kicked"):
+            # Accept any valid member status
+            if member.status not in ("member", "administrator", "creator"):
                 not_joined.append(ch)
-        except:
+        except Exception as e:
+            print(f"[FSub Error] {ch}: {e}")
             not_joined.append(ch)
 
     return not_joined
@@ -58,8 +60,8 @@ async def send_join_buttons(client, message, not_joined):
             chat = await client.get_chat(c)
             if chat.username:
                 btns.append([InlineKeyboardButton("🔗 Join", url=f"https://t.me/{chat.username}")])
-        except:
-            pass
+        except Exception as e:
+            print(f"[Join Button Error] {c}: {e}")
 
     btns.append([InlineKeyboardButton("✅ Joined", callback_data="refreshFsub")])
 
