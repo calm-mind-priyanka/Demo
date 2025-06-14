@@ -10,10 +10,9 @@ from TechVJ.util.human_readable import humanbytes
 from database.users_chats_db import db
 from utils import temp, get_shortlink
 
-# Force sub & premium check import
+# Force sub & premium check
 from plugins.fsub import check_fsub, send_join_buttons
 from plugins.premium import is_premium
-
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
@@ -40,19 +39,18 @@ async def start(client, message):
         parse_mode=enums.ParseMode.HTML
     )
 
-
 @Client.on_message(filters.private & (filters.document | filters.video))
 async def stream_start(client, message):
     user_id = message.from_user.id
     username = message.from_user.mention
 
-    # Force Sub Check
+    # 1️⃣ Force Subscribe Check
     not_joined = await check_fsub(user_id, client)
     if not_joined:
         await send_join_buttons(client, message, not_joined)
         return
 
-    # Premium Check
+    # 2️⃣ Premium Check
     if not await is_premium(user_id):
         await message.reply_text(
             "🚫 You are not a Premium user.\n\n💳 To generate links, please upgrade to a premium plan.",
@@ -63,6 +61,7 @@ async def stream_start(client, message):
         )
         return
 
+    # 3️⃣ Continue for Premium User
     file = getattr(message, message.media.value)
     filename = file.file_name
     filesize = humanize.naturalsize(file.file_size)
@@ -121,7 +120,6 @@ async def stream_start(client, message):
         reply_markup=rm
     )
 
-
 @Client.on_callback_query(filters.regex("plans"))
 async def show_plans_callback(client, callback_query):
     await callback_query.message.edit_text(
@@ -152,7 +150,6 @@ async def show_plans_callback(client, callback_query):
         disable_web_page_preview=False
     )
 
-
 @Client.on_callback_query(filters.regex("back_to_home"))
 async def back_to_home_callback(client, callback_query):
     await callback_query.message.edit_text(
@@ -167,15 +164,3 @@ async def back_to_home_callback(client, callback_query):
         ]),
         parse_mode=enums.ParseMode.HTML
     )
-
-
-@Client.on_callback_query(filters.regex("refreshFsub"))
-async def refresh_fsub_callback(client, callback_query):
-    user_id = callback_query.from_user.id
-    not_joined = await check_fsub(user_id, client)
-
-    if not_joined:
-        await callback_query.answer("❌ You still haven’t joined all required channels.", show_alert=True)
-    else:
-        await callback_query.message.delete()
-        await callback_query.message.reply("✅ Verified! You’ve joined all required channels. Now send your file.")
