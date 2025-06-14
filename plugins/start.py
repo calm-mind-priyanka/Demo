@@ -16,13 +16,23 @@ from plugins.premium import is_premium
 
 @Client.on_message(filters.command("start") & filters.incoming)
 async def start(client, message):
-    if not await db.is_user_exist(message.from_user.id):
-        await db.add_user(message.from_user.id, message.from_user.first_name)
+    user_id = message.from_user.id
+
+    # ✅ Force Subscribe Check even on /start
+    not_joined = await check_fsub(user_id, client)
+    if not_joined:
+        await send_join_buttons(client, message, not_joined)
+        return
+
+    # ✅ Save new user in DB and send log
+    if not await db.is_user_exist(user_id):
+        await db.add_user(user_id, message.from_user.first_name)
         await client.send_message(
             LOG_CHANNEL,
-            script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention)
+            script.LOG_TEXT_P.format(user_id, message.from_user.mention)
         )
 
+    # ✅ Show Start Message with Menu
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
@@ -33,7 +43,7 @@ async def start(client, message):
     ])
 
     await client.send_message(
-        chat_id=message.from_user.id,
+        chat_id=user_id,
         text=script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
         reply_markup=rm,
         parse_mode=enums.ParseMode.HTML
@@ -44,13 +54,13 @@ async def stream_start(client, message):
     user_id = message.from_user.id
     username = message.from_user.mention
 
-    # 1️⃣ Force Subscribe Check
+    # ✅ Force Subscribe Check
     not_joined = await check_fsub(user_id, client)
     if not_joined:
         await send_join_buttons(client, message, not_joined)
         return
 
-    # 2️⃣ Premium Check
+    # ✅ Premium Check
     if not await is_premium(user_id):
         await message.reply_text(
             "🚫 You are not a Premium user.\n\n💳 To generate links, please upgrade to a premium plan.",
@@ -61,7 +71,7 @@ async def stream_start(client, message):
         )
         return
 
-    # 3️⃣ Continue for Premium User
+    # ✅ Proceed with Premium User
     file = getattr(message, message.media.value)
     filename = file.file_name
     filesize = humanize.naturalsize(file.file_size)
@@ -142,7 +152,7 @@ async def show_plans_callback(client, callback_query):
 <b>─────•─────────•─────•</b>
 <b>✨ ᴜᴘɪ ɪᴅ -</b> <code>lamasandeep821@okicici</code>
 <b>📌 ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴ :</b> <code>/myplan</code>
-<b>💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ‼️ ᴀꜰᴛᴇʀ sᴇɴᴅɪɴɢ ᴀ sᴄʀᴇᴇɴsʜᴏᴛ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴍᴇ sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ ᴠᴇʀsɪᴏɴ.</b>""",
+<b>💢 ᴍᴜsᴛ sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ‼️</b>""",
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_home")]
         ]),
