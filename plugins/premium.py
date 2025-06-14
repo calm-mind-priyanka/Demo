@@ -44,7 +44,9 @@ async def my_plan(client, message: Message):
             f"✅ Enjoy your premium features without limits!"
         )
         buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✨ Upgrade Plan", url="https://t.me/YourSupportChannel")]
+            [InlineKeyboardButton("✨ Upgrade Plan", url="reply_markup=InlineKeyboardMarkup([
+    [InlineKeyboardButton("💎 Update Plan", url="https://t.me/Sandymaiwait")]
+])")]
         ])
         await message.reply(plan_text, reply_markup=buttons)
     else:
