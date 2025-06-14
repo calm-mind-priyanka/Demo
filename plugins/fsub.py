@@ -16,7 +16,7 @@ def save_fsub(channels):
     with open(FILENAME, "w") as f:
         json.dump(channels, f)
 
-# Set Force Subscribe Channels
+# ✅ Set Force Subscribe Channels
 @Client.on_message(filters.command("setfsub") & filters.user(ADMINS))
 async def set_fsub(client, message: Message):
     try:
@@ -26,13 +26,13 @@ async def set_fsub(client, message: Message):
     except Exception:
         await message.reply("❗ Usage:\n`/setfsub channel_id1 channel_id2 ...`")
 
-# Delete Force Subscribe Settings
+# ❌ Delete Force Subscribe Settings
 @Client.on_message(filters.command("delfsub") & filters.user(ADMINS))
 async def del_fsub(client, message: Message):
     save_fsub([])
     await message.reply("❌ Force Subscribe requirement removed.")
 
-# ✅ Updated Check FSub Logic
+# 🔍 Check FSub Logic
 async def check_fsub(user_id, client):
     channels = load_fsub()
     not_joined = []
@@ -40,7 +40,6 @@ async def check_fsub(user_id, client):
     for ch in channels:
         try:
             member = await client.get_chat_member(ch, user_id)
-            # Accept any valid member status
             if member.status not in ("member", "administrator", "creator"):
                 not_joined.append(ch)
         except Exception as e:
@@ -49,7 +48,7 @@ async def check_fsub(user_id, client):
 
     return not_joined
 
-# Send Join Buttons
+# 🔗 Send Join Buttons (Supports public and private)
 async def send_join_buttons(client, message, not_joined):
     if not not_joined:
         return
@@ -59,7 +58,12 @@ async def send_join_buttons(client, message, not_joined):
         try:
             chat = await client.get_chat(c)
             if chat.username:
+                # Public channel
                 btns.append([InlineKeyboardButton("🔗 Join", url=f"https://t.me/{chat.username}")])
+            else:
+                # Private channel - generate invite link
+                invite_link = await client.export_chat_invite_link(chat.id)
+                btns.append([InlineKeyboardButton("🔗 Join", url=invite_link)])
         except Exception as e:
             print(f"[Join Button Error] {c}: {e}")
 
@@ -70,7 +74,7 @@ async def send_join_buttons(client, message, not_joined):
         reply_markup=InlineKeyboardMarkup(btns)
     )
 
-# ✅ Refresh FSub Callback Handler
+# 🔄 Refresh FSub Button
 @Client.on_callback_query(filters.regex("refreshFsub"))
 async def refresh_fsub(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
