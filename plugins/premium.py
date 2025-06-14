@@ -2,7 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from database.users_chats_db import db
 from datetime import datetime, timedelta
-from info import ADMINS  # ✅ Importing admin list from info.py
+from info import ADMINS
 
 # Add premium
 @Client.on_message(filters.command("addpremium") & filters.user(ADMINS))
@@ -28,31 +28,35 @@ async def remove_premium(client, message: Message):
     await db.remove_premium(user_id)
     await message.reply(f"❌ Removed Premium from user `{user_id}`.")
 
-# My Plan (Advanced View)
+# My Plan
 @Client.on_message(filters.command("myplan"))
 async def my_plan(client, message: Message):
     user_id = message.from_user.id
     premium, expiry = await db.is_premium(user_id)
 
-    if premium and expiry:
-        days_left = (expiry - datetime.utcnow()).days
-        plan_text = (
-            f"💎 **Premium Membership Details** 💎\n\n"
-            f"👤 **User ID:** `{user_id}`\n"
-            f"📅 **Expiry Date:** `{expiry.strftime('%Y-%m-%d')}`\n"
-            f"⏳ **Days Remaining:** `{days_left}` day(s)\n\n"
-            f"✅ Enjoy your premium features without limits!"
+    if premium:
+        await message.reply(
+            f"✅ You are a **Premium User**!\n\n"
+            f"🗓️ **Expires on:** `{expiry.strftime('%Y-%m-%d')}`\n"
+            f"🔒 Access: Unlimited File Links, No Ads, Fastest Speed",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💎 Upgrade Plan", url="https://t.me/Sandymaiwait")]
+            ])
         )
-        buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✨ Upgrade Plan", url="reply_markup=InlineKeyboardMarkup([
-    [InlineKeyboardButton("💎 Update Plan", url="https://t.me/Sandymaiwait")]
-])")]
-        ])
-        await message.reply(plan_text, reply_markup=buttons)
     else:
-        await message.reply("⚠️ You are not a Premium user.\nType /start to view Premium plans.")
+        await message.reply(
+            "⚠️ You are not a Premium user.\n\n"
+            "💡 Unlock exclusive features like:\n"
+            "- 🚫 No Ads\n"
+            "- 🔗 Unlimited File Links\n"
+            "- ⚡ Fastest Speeds\n\n"
+            "Click below to get Premium now ⬇️",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💎 Upgrade Plan", url="https://t.me/Sandymaiwait")]
+            ])
+        )
 
-# ✅ This function is needed for imports
+# Exported for other files
 async def is_premium(user_id: int) -> bool:
     premium, _ = await db.is_premium(user_id)
     return premium
