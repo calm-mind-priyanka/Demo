@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from database.users_chats_db import db
 from datetime import datetime, timedelta
 from info import ADMINS  # ✅ Importing admin list from info.py
@@ -28,14 +28,25 @@ async def remove_premium(client, message: Message):
     await db.remove_premium(user_id)
     await message.reply(f"❌ Removed Premium from user `{user_id}`.")
 
-# My Plan
+# My Plan (Advanced View)
 @Client.on_message(filters.command("myplan"))
 async def my_plan(client, message: Message):
     user_id = message.from_user.id
     premium, expiry = await db.is_premium(user_id)
 
-    if premium:
-        await message.reply(f"✅ You are a Premium user.\n🗓️ Expiry: `{expiry.strftime('%Y-%m-%d')}`")
+    if premium and expiry:
+        days_left = (expiry - datetime.utcnow()).days
+        plan_text = (
+            f"💎 **Premium Membership Details** 💎\n\n"
+            f"👤 **User ID:** `{user_id}`\n"
+            f"📅 **Expiry Date:** `{expiry.strftime('%Y-%m-%d')}`\n"
+            f"⏳ **Days Remaining:** `{days_left}` day(s)\n\n"
+            f"✅ Enjoy your premium features without limits!"
+        )
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("✨ Upgrade Plan", url="https://t.me/YourSupportChannel")]
+        ])
+        await message.reply(plan_text, reply_markup=buttons)
     else:
         await message.reply("⚠️ You are not a Premium user.\nType /start to view Premium plans.")
 
