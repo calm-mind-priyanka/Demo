@@ -18,13 +18,11 @@ from plugins.premium import is_premium
 async def start(client, message):
     user_id = message.from_user.id
 
-    # ✅ Force Subscribe Check even on /start
     not_joined = await check_fsub(user_id, client)
     if not_joined:
         await send_join_buttons(client, message, not_joined)
         return
 
-    # ✅ Save new user in DB and send log
     if not await db.is_user_exist(user_id):
         await db.add_user(user_id, message.from_user.first_name)
         await client.send_message(
@@ -32,7 +30,6 @@ async def start(client, message):
             script.LOG_TEXT_P.format(user_id, message.from_user.mention)
         )
 
-    # ✅ Show Start Message with Menu
     rm = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎯 Show Plans", callback_data="plans")],
         [
@@ -54,13 +51,11 @@ async def stream_start(client, message):
     user_id = message.from_user.id
     username = message.from_user.mention
 
-    # ✅ Force Subscribe Check
     not_joined = await check_fsub(user_id, client)
     if not_joined:
         await send_join_buttons(client, message, not_joined)
         return
 
-    # ✅ Premium Check
     if not await is_premium(user_id):
         await message.reply_text(
             "🚫 You are not a Premium user.\n\n💳 To generate links, please upgrade to a premium plan.",
@@ -71,7 +66,6 @@ async def stream_start(client, message):
         )
         return
 
-    # ✅ Proceed with Premium User
     file = getattr(message, message.media.value)
     filename = file.file_name
     filesize = humanize.naturalsize(file.file_size)
@@ -88,11 +82,11 @@ async def stream_start(client, message):
     if not SHORTLINK:
         stream = f"{URL}watch/{log_msg.id}/{file_name_encoded}?hash={file_hash}"
         download = f"{URL}{log_msg.id}/{file_name_encoded}?hash={file_hash}"
-        embed = f"{URL}e/{log_msg.id}/{file_name_encoded}?hash={file_hash}"
+        embed = f"https://storage.thebosshacker.in/embed/{log_msg.id}"  # 🔧 External embed link
     else:
         stream = await get_shortlink(f"{URL}watch/{log_msg.id}/{file_name_encoded}?hash={file_hash}")
         download = await get_shortlink(f"{URL}{log_msg.id}/{file_name_encoded}?hash={file_hash}")
-        embed = await get_shortlink(f"{URL}e/{log_msg.id}/{file_name_encoded}?hash={file_hash}")
+        embed = await get_shortlink(f"https://storage.thebosshacker.in/embed/{log_msg.id}")
 
     await log_msg.reply_text(
         text=f"•• ʟɪɴᴋ ɢᴇɴᴇʀᴀᴛᴇᴅ ꜰᴏʀ ɪᴅ #{user_id} \n•• ᴜꜱᴇʀɴᴀᴍᴇ : {username} \n\n•• ᖴᎥᒪᗴ Nᗩᗰᗴ : {file_name_encoded}",
